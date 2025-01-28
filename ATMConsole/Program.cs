@@ -21,8 +21,6 @@ namespace ATMConsole
         }
 
 
-
-
         static void InitializeATM()
         {
             bank = new Bank("BankName", "BankAddress", 10);
@@ -39,43 +37,40 @@ namespace ATMConsole
         {
             while (true)
             {
-                Console.WriteLine("=== Банкомат ===");
-                Console.WriteLine("1. Вхід (Аутентифікація)");
-                Console.WriteLine("2. Перегляд балансу");
-                Console.WriteLine("3. Зняття коштів");
-                Console.WriteLine("4. Поповнення рахунку");
-                Console.WriteLine("5. Переказ коштів");
-                Console.WriteLine("6. Вихід");
-
-                Console.Write("Оберіть дію: ");
-                string choice = Console.ReadLine();
-
-                switch (choice)
-                {
-                    case "1":
-                        Authenticate();
-                        break;
-                    case "2":
-                        CheckBalance();
-                        break;
-                    case "3":
-                        Withdraw();
-                        break;
-                    case "4":
-                        Deposit();
-                        break;
-                    case "5":
-                        Transfer();
-                        break;
-                    case "6":
-                        Environment.Exit(0);
-                        break;
-                    default:
-                        Console.WriteLine("Невірний вибір, спробуйте ще раз.");
-                        break;
-                }
+                DisplayMenuOptions();
+                HandleUserChoice();
             }
         }
+
+        static void DisplayMenuOptions()
+        {
+            Console.WriteLine("=== Банкомат ===");
+            Console.WriteLine("1. Вхід (Аутентифікація)");
+            Console.WriteLine("2. Перегляд балансу");
+            Console.WriteLine("3. Зняття коштів");
+            Console.WriteLine("4. Поповнення рахунку");
+            Console.WriteLine("5. Переказ коштів");
+            Console.WriteLine("6. Вихід");
+        }
+
+
+        static void HandleUserChoice()
+        {
+            Console.Write("Оберіть дію: ");
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1": Authenticate(); break;
+                case "2": CheckBalance(); break;
+                case "3": Withdraw(); break;
+                case "4": Deposit(); break;
+                case "5": Transfer(); break;
+                case "6": Environment.Exit(0); break;
+                default: Console.WriteLine("Невірний вибір, спробуйте ще раз."); break;
+            }
+        }
+
 
         // Аутентифікація
         static void Authenticate()
