@@ -86,7 +86,7 @@ namespace ATMConsole
             Console.Write("Введіть PIN-код: ");
             if (int.TryParse(Console.ReadLine(), out int pinCode))
             {
-                if (bank.Authentication(cardNumber, pinCode, accounts, out currentUser))
+                if (bank.Authenticate(cardNumber, pinCode, out currentUser))
                 {
                     Console.WriteLine("Аутентифікація успішна!");
                 }
@@ -189,10 +189,5 @@ namespace ATMConsole
 
 
     }
-
-
-
-
-
 
 }

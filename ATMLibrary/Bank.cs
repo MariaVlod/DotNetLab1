@@ -9,51 +9,39 @@ namespace ATMLibrary
     public delegate void BankHandler(string message);
     public class Bank
     {
-        public delegate void BanksHandler(Bank sender, BanksEventArgs e);
-        public event BankHandler Notifications;
+        public string Name { get; set; }
+        public string Address { get; set; } 
+        public List<Account> Accounts { get; private set; }
+        private readonly AccountManager accountManager;
 
-        public string BankName { get; private set; }
-        public string BankAddress { get; private set; }
-        public int ListAtms { get; set; }
-
-        public Bank(string bankName, string bankAddress, int listAtms)
+        public Bank(string name, string address, int maxAccounts)
         {
-            BankName = bankName;
-            BankAddress = bankAddress;
-            ListAtms = listAtms;
+            Name = name;
+            Address = address; 
+            Accounts = new List<Account>();
+            accountManager = new AccountManager(this);
+            Accounts.Add(new Account("1234567890", 1234, "John", "Doe", "john@example.com", "1234567890", 5000));
+            Accounts.Add(new Account("0987654321", 4321, "Jane", "Doe", "jane@example.com", "0987654321", 10000));
         }
 
-        public bool Authentication(string cardNumber, int cardPin, Account[] accounts, out int user)
+        public bool Authenticate(string cardNumber, int pinCode, out int userIndex)
         {
-            user = -1;
+            return accountManager.Authenticate(cardNumber, pinCode, out userIndex);
+        }
 
-            
-            if (string.IsNullOrWhiteSpace(cardNumber) || cardPin <= 0)
+        public void CreateAccount(string accountHolder, decimal initialBalance)
+        {
+            var nameParts = accountHolder.Split(' ');
+            if (nameParts.Length < 2)
             {
-                Notifications?.Invoke("Неправильний номер картки або PIN-код.");
-                return false;
+                Console.WriteLine("Error: Full name must include both first and last name.");
+                return;
             }
 
-            for (int i = 0; i < Account.usercount; i++)
-            {
-                if (accounts[i].CardNumber == cardNumber)
-                {
-                    if (accounts[i].CardPin == cardPin)
-                    {
-                        user = i;
-                        Notifications?.Invoke("Аутентифікація успішна!");
-                        return true;
-                    }
-                    else
-                    {
-                        Notifications?.Invoke("Помилка введення даних! Повторіть спробу!");
-                        return false;
-                    }
-                }
-            }
+            string firstName = nameParts[0];
+            string lastName = nameParts[1];
 
-            Notifications?.Invoke("Картка не знайдена.");
-            return false;
+            accountManager.CreateAccount(firstName, lastName, (double)initialBalance);
         }
     }
 }

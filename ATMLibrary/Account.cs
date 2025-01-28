@@ -11,7 +11,11 @@ namespace ATMLibrary
     public class Account
     {
         public delegate void BankOperationsHandler(Account sender, BankOperationsEventArgs e);
-        public static int usercount = 0;
+
+        public static int UserCount = 0;
+
+        public string AccountNumber { get; set; }
+        public string AccountHolder => $"{FirstName} {LastName}";
         public string CardNumber { get; set; }
         public int CardPin { get; set; }
         public string FirstName { get; set; }
@@ -20,9 +24,10 @@ namespace ATMLibrary
         public string PhoneNumber { get; set; }
         public double Balance { get; set; }
 
-
         private AccountHandler info;
-        public Account(string cardNumber, int cardPin, string firstName, string lastName, string email, string phoneNumber, double balance) 
+
+        // Основний конструктор
+        public Account(string cardNumber, int cardPin, string firstName, string lastName, string email, string phoneNumber, double balance)
         {
             CardNumber = cardNumber;
             CardPin = cardPin;
@@ -31,8 +36,28 @@ namespace ATMLibrary
             Email = email;
             PhoneNumber = phoneNumber;
             Balance = balance;
-            usercount++;
+
+            AccountNumber = GenerateAccountNumber();
+            UserCount++;
         }
+
+        // Спрощений конструктор для мінімальних даних
+        public Account(string firstName, string lastName, double balance)
+        {
+            FirstName = firstName;
+            LastName = lastName;
+            Balance = balance;
+
+            AccountNumber = GenerateAccountNumber();
+            UserCount++;
+        }
+
+        // Генерація номера акаунта
+        private string GenerateAccountNumber()
+        {
+            return $"ACC{DateTime.Now.Ticks}";
+        }
+
         public void RegisterHandler(AccountHandler del)
         {
             info = del;
@@ -40,7 +65,7 @@ namespace ATMLibrary
 
         public void PrintInfo()
         {
-            info?.Invoke($"Ім'я: {FirstName}\nПрізвище: {LastName}\nНомер картки: {CardNumber}\nEmail: {Email}\nТелефон: {PhoneNumber}\nБаланс: {Balance}");
+            info?.Invoke($"Ім'я: {FirstName}\nПрізвище: {LastName}\nБаланс: {Balance}\nНомер акаунта: {AccountNumber}");
         }
 
         public void PrintBalance()
@@ -48,35 +73,14 @@ namespace ATMLibrary
             info?.Invoke($"Баланс: {Balance}");
         }
 
-        public bool Withdraw(double amount)
+        public void Withdraw(Account account, decimal amount)
         {
-            if (amount <= 0)
-            {
-                info?.Invoke("Сума для зняття має бути більшою за нуль.");
-                return false;
-            }
-
-            if (amount > Balance)
-            {
-                info?.Invoke("Недостатньо коштів на рахунку.");
-                return false;
-            }
-
-            Balance -= amount;
-            info?.Invoke($"Знято {amount}. Новий баланс: {Balance}");
-            return true;
+            account.Balance -= (double)amount; // Кастуємо до double
         }
 
-        public void Deposit(double amount)
+        public void Deposit(Account account, decimal amount)
         {
-            if (amount <= 0)
-            {
-                info?.Invoke("Сума поповнення повинна бути бвльше за нуль.");
-                return;
-            }
-            Balance += amount;
-            info?.Invoke($"Ваш рахунок попвнено на {amount}. Новий баланс становить: {Balance}");
-        }
-
+            account.Balance += (double)amount; // Кастуємо до double
+        }    
     }
 }

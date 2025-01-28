@@ -16,6 +16,7 @@ namespace ATMForms
         private Bank bank;
         private AutomatedTellerMachine atm;
         private Account[] accounts;
+        private AccountManager accountManager;
         private int currentUser;
         public Form1()
         {
@@ -31,6 +32,7 @@ namespace ATMForms
         private void InitializeATM()
         {
             bank = new Bank("BankName", "BankAddress", 10);
+            accountManager = new AccountManager(bank);
             atm = new AutomatedTellerMachine(1, 10000, "Some Address");
             accounts = new Account[]
             {
@@ -46,7 +48,7 @@ namespace ATMForms
 
             if (int.TryParse(txtPinCode.Text, out pinCode))
             {
-                if (bank.Authentication(cardNumber, pinCode, accounts, out currentUser))
+                if (accountManager.Authenticate(cardNumber, pinCode, out currentUser))
                 {
                     MessageBox.Show("Вхід успішний!");
                 }
