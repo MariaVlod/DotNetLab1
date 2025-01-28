@@ -25,13 +25,19 @@ namespace ATMLibrary
 
         }
 
-        public void Deposit(double sum, Account[] accounts, int user) 
+        private bool ValidateSum(double sum)
         {
             if (sum <= 0)
             {
                 Notify?.Invoke(this, new BankOperationsEventArgs("Сума повинна бути більшою за 0", sum));
-                return;
+                return false;
             }
+            return true;
+        }
+
+        public void Deposit(double sum, Account[] accounts, int user) 
+        {
+            if (!ValidateSum(sum)) return;
 
             if (ATM_Balance < sum)
             {
@@ -53,11 +59,7 @@ namespace ATMLibrary
 
         public void Withdraw(double sum, Account[] accounts, int user)
         {
-            if (sum <= 0)
-            {
-                Notify?.Invoke(this, new BankOperationsEventArgs("Сума повинна бути більшою за 0", sum));
-                return;
-            }
+            if (!ValidateSum(sum)) return;
 
             if (ATM_Balance < sum)
             {
@@ -82,11 +84,7 @@ namespace ATMLibrary
 
         public bool Transfer(double sum, string cardNumber, Account[] accounts, int user)
         {
-            if (sum <= 0)
-            {
-                Notify?.Invoke(this, new BankOperationsEventArgs("Сума повинна бути більшою за 0", sum));
-                return false;
-            }
+            if (!ValidateSum(sum)) return false;
 
             if (accounts[user].Balance < sum)
             {
