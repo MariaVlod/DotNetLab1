@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ATMLibrary;
+﻿using ATMLibrary;
+using System;
 
 namespace ATMConsole
 {
@@ -24,7 +20,7 @@ namespace ATMConsole
         static void InitializeATM()
         {
             bank = new Bank("BankName", "BankAddress", 10);
-            atm = new AutomatedTellerMachine(1,10000, "Some Address");
+            atm = new AutomatedTellerMachine(1, 10000, "Some Address");
             accounts = new Account[]
             {
                 new Account("1234567890", 1234, "John", "Doe", "john@example.com", "1234567890", 5000),
@@ -96,89 +92,83 @@ namespace ATMConsole
             }
         }
 
-        // Перегляд балансу
-        static void CheckBalance()
+        // Перевірка входу
+        static bool IsUserLoggedIn()
         {
             if (currentUser >= 0)
             {
-                Console.WriteLine($"Ваш баланс: {accounts[currentUser].Balance} UAH");
+                return true;
             }
             else
             {
                 Console.WriteLine("Спочатку потрібно виконати вхід.");
+                return false;
             }
+        }
+
+        // Перегляд балансу
+        static void CheckBalance()
+        {
+            if (!IsUserLoggedIn()) return;
+            Console.WriteLine($"Ваш баланс: {accounts[currentUser].Balance} UAH");
         }
 
         // Зняття коштів
         static void Withdraw()
         {
-            if (currentUser >= 0)
+            if (!IsUserLoggedIn()) return;
+
+            Console.Write("Введіть суму для зняття: ");
+            if (double.TryParse(Console.ReadLine(), out double amount))
             {
-                Console.Write("Введіть суму для зняття: ");
-                if (double.TryParse(Console.ReadLine(), out double amount))
-                {
-                    atm.Withdraw(amount, accounts, currentUser);
-                }
-                else
-                {
-                    Console.WriteLine("Невірний формат суми.");
-                }
+                atm.Withdraw(amount, accounts, currentUser);
             }
             else
             {
-                Console.WriteLine("Спочатку потрібно виконати вхід.");
+                Console.WriteLine("Невірний формат суми.");
             }
+
         }
 
         // Поповнення рахунку
         static void Deposit()
         {
-            if (currentUser >= 0)
+            if (!IsUserLoggedIn()) return;
+
+            Console.Write("Введіть суму для поповнення: ");
+            if (double.TryParse(Console.ReadLine(), out double amount))
             {
-                Console.Write("Введіть суму для поповнення: ");
-                if (double.TryParse(Console.ReadLine(), out double amount))
-                {
-                    atm.Deposit(amount, accounts, currentUser);
-                }
-                else
-                {
-                    Console.WriteLine("Невірний формат суми.");
-                }
+                atm.Deposit(amount, accounts, currentUser);
             }
             else
             {
-                Console.WriteLine("Спочатку потрібно виконати вхід.");
+                Console.WriteLine("Невірний формат суми.");
             }
         }
 
         // Переказ коштів
         static void Transfer()
         {
-            if (currentUser >= 0)
-            {
-                Console.Write("Введіть номер картки отримувача: ");
-                string recipientCardNumber = Console.ReadLine();
+            if (!IsUserLoggedIn()) return;
 
-                Console.Write("Введіть суму для переказу: ");
-                if (double.TryParse(Console.ReadLine(), out double amount))
+            Console.Write("Введіть номер картки отримувача: ");
+            string recipientCardNumber = Console.ReadLine();
+
+            Console.Write("Введіть суму для переказу: ");
+            if (double.TryParse(Console.ReadLine(), out double amount))
+            {
+                if (atm.Transfer(amount, recipientCardNumber, accounts, currentUser))
                 {
-                    if (atm.Transfer(amount, recipientCardNumber, accounts, currentUser))
-                    {
-                        Console.WriteLine($"Переказано {amount} UAH на картку {recipientCardNumber}");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Помилка при переказі коштів.");
-                    }
+                    Console.WriteLine($"Переказано {amount} UAH на картку {recipientCardNumber}");
                 }
                 else
                 {
-                    Console.WriteLine("Невірний формат суми.");
+                    Console.WriteLine("Помилка при переказі коштів.");
                 }
             }
             else
             {
-                Console.WriteLine("Спочатку потрібно виконати вхід.");
+                Console.WriteLine("Невірний формат суми.");
             }
         }
 
