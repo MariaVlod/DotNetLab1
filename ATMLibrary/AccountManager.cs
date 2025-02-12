@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
+using System;
 
 namespace ATMLibrary
 {
     public class AccountManager
     {
         private readonly Bank bank;
+
+        private const string InsufficientFundsMessage = "Недостатньо коштів для переказу.";
+        private const string NegativeBalanceMessage = "Initial balance cannot be negative.";
 
         public AccountManager(Bank bank)
         {
@@ -19,7 +19,7 @@ namespace ATMLibrary
         {
             if (initialBalance < 0)
             {
-                Console.WriteLine("Initial balance cannot be negative.");
+                Console.WriteLine(NegativeBalanceMessage);
                 return;
             }
 
@@ -28,30 +28,47 @@ namespace ATMLibrary
             Console.WriteLine($"Account created successfully for {firstName} {lastName} with account number {newAccount.AccountNumber}.");
         }
 
-        
-        public bool Authenticate(string cardNumber, int pinCode, out int userIndex)
+        public bool Authenticate(string cardNumber, int pinCode, out Account authenticatedAccount)
         {
-            userIndex = bank.Accounts.FindIndex(acc => acc.CardNumber == cardNumber && acc.CardPin == pinCode);
-            return userIndex >= 0;
+            authenticatedAccount = bank.Accounts
+                .FirstOrDefault(acc => acc.CardNumber == cardNumber && acc.CardPin == pinCode);
+
+            return authenticatedAccount != null;
         }
 
-        
         public void Withdraw(Account account, decimal amount)
         {
+            if (amount < 0)
+            {
+                Console.WriteLine("Сума для зняття не може бути від'ємною.");
+                return;
+            }
+
             account.Balance -= (double)amount;
         }
 
         public void Deposit(Account account, decimal amount)
         {
+            if (amount < 0)
+            {
+                Console.WriteLine("Сума для поповнення не може бути від'ємною.");
+                return;
+            }
+
             account.Balance += (double)amount;
         }
 
-        
         public bool Transfer(Account fromAccount, Account toAccount, decimal amount)
         {
+            if (amount < 0)
+            {
+                Console.WriteLine("Сума переказу не може бути від'ємною.");
+                return false;
+            }
+
             if (fromAccount.Balance < (double)amount)
             {
-                Console.WriteLine("Недостатньо коштів для переказу.");
+                Console.WriteLine(InsufficientFundsMessage);
                 return false;
             }
 
